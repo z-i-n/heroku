@@ -9,7 +9,7 @@ var app     = express();
 console.log(process.env.PORT);
 app.set('port', (process.env.PORT || 8000));
 // Serve static assets
-app.use(express.static(path.resolve(__dirname, '.', 'dist')));
+//app.use(express.static(path.resolve(__dirname, '.', 'dist')));
 
 // Always return the main index.html, so react-router render the route in the client
 //app.get(/^((?!\/api).)*$/, (req, res) => {
@@ -31,6 +31,6 @@ app.use(function(req, res, next) {
   res.status(404).send('Not found');
 });
 
-// app.listen((process.env.PORT || 8000), function () {
-//       console.log('Example app listening on port 8000');
-// });
+app.listen(app.get('port'), function() {
+  console.log("Node app is running at localhost:" + app.get('port'));
+});
