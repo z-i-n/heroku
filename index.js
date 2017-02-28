@@ -16,7 +16,7 @@ app.set('port', (process.env.PORT || 8000));
   //res.sendFile(path.resolve(__dirname, '.', 'dist', 'index.html'));
 //});
 
-app.get('/', function(request, response) {
+app.get('/', function(req, res) {
   res.send('test');
 });
 
