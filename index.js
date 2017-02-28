@@ -1,7 +1,7 @@
 'use strict';
 var express = require('express');
 var path = require("path");
-var api = require('./server/api/api');
+//var api = require('./server/api/api');
 
 /* Start Dev Server */
 var app     = express();
@@ -16,7 +16,7 @@ app.get(/^((?!\/api).)*$/, (req, res) => {
 });
 
 // /^((?!\/api).)*$/
-app.use('/api', api);
+//app.use('/api', api);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
