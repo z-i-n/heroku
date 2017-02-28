@@ -7,6 +7,7 @@ var path = require("path");
 var app     = express();
 
 console.log(process.env.PORT);
+app.set('port', (process.env.PORT || 8000));
 // Serve static assets
 app.use(express.static(path.resolve(__dirname, '.', 'dist')));
 
@@ -26,6 +27,6 @@ app.use(function(req, res, next) {
   res.status(404).send('Not found');
 });
 
-app.listen(8000, function () {
-      console.log('Example app listening on port 8000');
-});
+// app.listen((process.env.PORT || 8000), function () {
+//       console.log('Example app listening on port 8000');
+// });
