@@ -9,15 +9,11 @@ var app     = express();
 console.log(process.env.PORT);
 app.set('port', (process.env.PORT || 8000));
 // Serve static assets
-//app.use(express.static(path.resolve(__dirname, '.', 'dist')));
+app.use(express.static(path.resolve(__dirname, '.', 'dist')));
 
 // Always return the main index.html, so react-router render the route in the client
-//app.get(/^((?!\/api).)*$/, (req, res) => {
-  //res.sendFile(path.resolve(__dirname, '.', 'dist', 'index.html'));
-//});
-
-app.get('/', (req, res)=>{
-  res.send('test');
+app.get(/^((?!\/api).)*$/, (req, res) => {
+  res.sendFile(path.resolve(__dirname, '.', 'dist', 'index.html'));
 });
 
 // /^((?!\/api).)*$/
