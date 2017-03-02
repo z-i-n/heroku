@@ -27,9 +27,15 @@ class App extends Component {
   }
   componentDidUpdate(prevProps, prevState) {
     console.log("componentDidUpdate: ", prevProps, prevState);
+    document.title = this.getTitle(this.props.location.pathname);
   }
   componentWillUnmount() {
     console.log("componentWillUnmount");
+  }
+
+  getTitle(paths) {
+    let arrPath = paths.replace(/^\/|\/$/g, '') != "" ? paths.replace(/^\/|\/$/g, '').split('/') : [];
+    return arrPath[arrPath.length-1] || 'home';
   }
 
   getBreadCrumb(paths) {
