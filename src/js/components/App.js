@@ -18,6 +18,7 @@ class App extends Component {
   }
   componentDidMount() {
     console.log("componentDidMount");
+    document.title = this.getTitle(this.props.location.pathname);
   }
   componentWillReceiveProps(nextProps) {
     console.log("componentWillReceiveProps: ", nextProps);
@@ -35,7 +36,7 @@ class App extends Component {
 
   getTitle(paths) {
     let arrPath = paths.replace(/^\/|\/$/g, '') != "" ? paths.replace(/^\/|\/$/g, '').split('/') : [];
-    return arrPath[arrPath.length-1] || 'home';
+    return 'Dashboard - ' + (arrPath[arrPath.length-1] || 'home').toUpperCase();
   }
 
   getBreadCrumb(paths) {
