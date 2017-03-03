@@ -18,7 +18,7 @@ class App extends Component {
   }
   componentDidMount() {
     console.log("componentDidMount");
-    document.title = this.getTitle(this.props.location.pathname);
+    this.setTitle(this.props.location.pathname);
   }
   componentWillReceiveProps(nextProps) {
     console.log("componentWillReceiveProps: ", nextProps);
@@ -28,15 +28,17 @@ class App extends Component {
   }
   componentDidUpdate(prevProps, prevState) {
     console.log("componentDidUpdate: ", prevProps, prevState);
-    document.title = this.getTitle(this.props.location.pathname);
+    this.setTitle(this.props.location.pathname);
   }
   componentWillUnmount() {
     console.log("componentWillUnmount");
   }
 
-  getTitle(paths) {
+  setTitle(paths) {
     let arrPath = paths.replace(/^\/|\/$/g, '') != "" ? paths.replace(/^\/|\/$/g, '').split('/') : [];
-    return 'Dashboard - ' + (arrPath[arrPath.length-1] || 'home').toUpperCase();
+    let title = 'Dashboard - ' + (arrPath[arrPath.length-1] || 'home').toUpperCase();
+    document.title = title;
+    $('meta[property="og:title"]').attr('content', title);
   }
 
   getBreadCrumb(paths) {
