@@ -9,6 +9,7 @@
 
 'use strict';
 
+var audio1 = document.querySelector('audio#audio1');
 var audio2 = document.querySelector('audio#audio2');
 var callButton = document.querySelector('button#callButton');
 var hangupButton = document.querySelector('button#hangupButton');
@@ -37,6 +38,7 @@ var offerOptions = {
 
 function gotStream(stream) {
   hangupButton.disabled = false;
+  audio1.srcObject = stream;
   trace('Received local stream');
   localStream = stream;
   var audioTracks = localStream.getAudioTracks();
@@ -121,6 +123,7 @@ function call() {
   pc2.onicecandidate = function(e) {
     onIceCandidate(pc2, e);
   };
+
   pc2.onaddstream = gotRemoteStream;
   trace('Requesting local stream');
   navigator.mediaDevices.getUserMedia({
