@@ -6,7 +6,7 @@ var config = require('getconfig');
 
 /* Start Dev Server */
 var app     = express();
-var server = app.listen(process.env.PORT || 8000);
+var server = app.listen(process.env.PORT || 5000);
 sockets(server, config);
 console.log(process.env.PORT);
 // Serve static assets
