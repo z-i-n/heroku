@@ -6,6 +6,7 @@ var path = require("path");
 var app     = express();
 console.log(process.env.PORT);
 // Serve static assets
+app.set('port', (process.env.PORT || 8000));
 app.use(express.static(path.resolve(__dirname, '.', 'dist')));
 
 // Always return the main index.html, so react-router render the route in the client
