@@ -68,7 +68,7 @@
     </div>
 
     <a href="https://github.com/webrtc/samples/tree/gh-pages/src/content/peerconnection/audio" title="View source for this page on GitHub" id="viewSource">View source on GitHub</a>
-
+    <p id='server-time'></p>
   </div>
 
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
@@ -76,6 +76,13 @@
   <script src="js/main.js"></script>
   <script src="js/third_party/graph.js"></script>
 
-  <script src="../../../js/lib/ga.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
+  <script>
+      var socket = io.connect('http://localhost:5000');
+      var el = document.getElementById('server-time');
+      socket.on('time', function(timeString) {
+        el.innerHTML = 'Server time: ' + timeString;
+      });
+    </script>
 </body>
 </html>

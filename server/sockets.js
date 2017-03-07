@@ -6,9 +6,10 @@ var socketIO = require('socket.io'),
 
 module.exports = function (app) {
     var server = http.createServer(app);
+    server.listen(process.env.PORT || 5000);
     var io = socketIO(server);
 
-    io.on('connection', function (client) {
+    io.on('connection', function (socket) {
         console.log('user connected', socket.id);
 
         socket.on('offer', function (data) {
@@ -28,5 +29,4 @@ module.exports = function (app) {
 
         socket.broadcast.emit('new');
     });
-
 };
