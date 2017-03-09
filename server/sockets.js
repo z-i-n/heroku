@@ -30,5 +30,4 @@ module.exports = function (app) {
         socket.broadcast.emit('new');
     });
 
-    setInterval(() =>{ console.log('time emit'); io.emit('time', new Date().toTimeString());},5000);
 };
