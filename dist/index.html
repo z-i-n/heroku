@@ -58,8 +58,8 @@
           <!-- Codec values are matched with how they appear in the SDP.
           For instance, opus matches opus/48000/2 in Chrome, and ISAC/16000
           matches 16K iSAC (but not 32K iSAC). -->
-          <option value="opus">Opus</option>
           <option value="ISAC">iSAC 16K</option>
+          <option value="opus">Opus</option>
           <option value="G722">G722</option>
           <option value="PCMU">PCMU</option>
         </select>
@@ -112,6 +112,12 @@
           var signal = JSON.parse(data);
           if (signal.sdp) {
             gotRemoteDescription(signal);
+          }
+      });
+      socket.on('candidate', function(data) {
+        //receive offer
+          if (data) {
+            addIcecandidate(data);
           }
       });
       var area_create = document.getElementById('create_room');

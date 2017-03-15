@@ -123,9 +123,7 @@ function call(desc) {
 
   pc = new RTCPeerConnection(servers, pcConstraints);
   console.log('Created local peer connection object pc');
-  pc.onicecandidate = function(e) {
-    onIceCandidate(pc, e);
-  };
+  pc.onicecandidate = onIceCandidate;
   pc.onaddstream = gotRemoteStream;
 
   if (isAnswer) {
@@ -211,8 +209,15 @@ function gotRemoteStream(e) {
   console.log('Received remote stream');
 }
 
-function onIceCandidate(pc, event) {
-  pc.addIceCandidate(event.candidate)
+function onIceCandidate(event) {
+  socket.emit("candidate", event.candidate);
+
+  console.log(' ICE candidate: \n' + (event.candidate ?
+      event.candidate.candidate : '(null)'));
+}
+
+function addIcecandidate(iceCandidate) {
+  pc.addIceCandidate(iceCandidate)
   .then(
     function() {
       onAddIceCandidateSuccess(pc);
@@ -221,8 +226,6 @@ function onIceCandidate(pc, event) {
       onAddIceCandidateError(pc, err);
     }
   );
-  console.log(' ICE candidate: \n' + (event.candidate ?
-      event.candidate.candidate : '(null)'));
 }
 
 function onAddIceCandidateSuccess() {
