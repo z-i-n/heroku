@@ -51,12 +51,12 @@ module.exports = function (app) {
 
         socket.on('answer', function(data) {
             console.log('relaying answer');
-            socket.broadcast.emit('answer', data);
+            socket.broadcast.to(room_id).emit('answer', data);
         });
 
         socket.on('candidate', function (data) {
             console.log('relaying candidate');
-            socket.broadcast.emit('candidate', data);
+            socket.broadcast.to(room_id).emit('candidate', data);
         });
 
         //socket.broadcast.emit('new');
