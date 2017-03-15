@@ -8,7 +8,7 @@
 /* global TimelineDataSeries, TimelineGraphView */
 
 'use strict';
-var isAnswer = false;
+
 var audio1 = document.querySelector('audio#audio1');
 var audio2 = document.querySelector('audio#audio2');
 var callButton = document.querySelector('button#callButton');
@@ -18,7 +18,8 @@ hangupButton.disabled = true;
 callButton.onclick = call;
 hangupButton.onclick = hangup;
 
-var pc;
+var pc1;
+var pc2;
 var localStream;
 
 var bitrateGraph;
@@ -38,28 +39,21 @@ var offerOptions = {
 function gotStream(stream) {
   hangupButton.disabled = false;
   audio1.srcObject = stream;
-  console.log('Received local stream');
+  trace('Received local stream');
   localStream = stream;
   var audioTracks = localStream.getAudioTracks();
   if (audioTracks.length > 0) {
-    console.log('Using Audio device: ' + audioTracks[0].label);
+    trace('Using Audio device: ' + audioTracks[0].label);
   }
-  pc.addStream(localStream);
-  console.log('Adding Local Stream to peer connection');
+  pc1.addStream(localStream);
+  trace('Adding Local Stream to peer connection');
 
-  if (!isAnswer) {
-    pc.createOffer(
-      offerOptions
-    ).then(
-      gotLocalDescription,
-      onCreateSessionDescriptionError
-    );
-  } else {
-    pc.createAnswer().then(
-      gotLocalDescription,
-      onCreateSessionDescriptionError
-    );
-  }
+  pc1.createOffer(
+    offerOptions
+  ).then(
+    gotDescription1,
+    onCreateSessionDescriptionError
+  );
 
   bitrateSeries = new TimelineDataSeries();
   bitrateGraph = new TimelineGraphView('bitrateGraph', 'bitrateCanvas');
@@ -71,14 +65,13 @@ function gotStream(stream) {
 }
 
 function onCreateSessionDescriptionError(error) {
-  console.log('Failed to create session description: ' + error.toString());
+  trace('Failed to create session description: ' + error.toString());
 }
 
-function call(desc) {
-  isAnswer = !!desc;
+function call() {
   callButton.disabled = true;
   codecSelector.disabled = true;
-  console.log('Starting call');
+  trace('Starting call');
   var servers = {
       'iceServers': [
         {url:'stun:stun01.sipphone.com'},
@@ -120,33 +113,19 @@ function call(desc) {
   var pcConstraints = {
     'optional': []
   };
-
-  pc = new RTCPeerConnection(servers, pcConstraints);
-  console.log('Created local peer connection object pc');
-  pc.onicecandidate = function(e) {
-    onIceCandidate(pc, e);
+  pc1 = new RTCPeerConnection(servers, pcConstraints);
+  trace('Created local peer connection object pc1');
+  pc1.onicecandidate = function(e) {
+    onIceCandidate(pc1, e);
   };
-  pc.onaddstream = gotRemoteStream;
+  pc2 = new RTCPeerConnection(servers, pcConstraints);
+  trace('Created remote peer connection object pc2');
+  pc2.onicecandidate = function(e) {
+    onIceCandidate(pc2, e);
+  };
 
-  if (isAnswer) {
-    desc.sdp.sdp = forceChosenAudioCodec(desc.sdp.sdp);
-    pc.setRemoteDescription(desc.sdp).then(
-      function() {
-      },
-      onSetSessionDescriptionError
-    );
-  }
-
-  // pc2 = new RTCPeerConnection(servers, pcConstraints);
-  // console.log('Created remote peer connection object pc2');
-  // pc2.onicecandidate = function(e) {
-  //   onIceCandidate(pc2, e);
-  // };
-
-  //pc2.onaddstream = gotRemoteStream;
-
-  console.log('Requesting local stream');
-
+  pc2.onaddstream = gotRemoteStream;
+  trace('Requesting local stream');
   navigator.mediaDevices.getUserMedia({
     audio: true,
     video: false
@@ -157,50 +136,49 @@ function call(desc) {
   });
 }
 
-function gotLocalDescription(desc) {
-  console.log('Offer from pc \n' + desc.sdp);
-  pc.setLocalDescription(desc).then(
+function gotDescription1(desc) {
+  trace('Offer from pc1 \n' + desc.sdp);
+  pc1.setLocalDescription(desc).then(
     function() {
-      //desc.sdp = forceChosenAudioCodec(desc.sdp);
-      // pc2.setRemoteDescription(desc).then(
-      //   function() {
-      //     pc2.createAnswer().then(
-      //       gotDescription2,
-      //       onCreateSessionDescriptionError
-      //     );
-      //   },
-      //   onSetSessionDescriptionError
-      // );
-      //sockets 으로 전송
-      socket.emit(isAnswer ? 'answer': 'offer', JSON.stringify({ "sdp": desc }));
+      desc.sdp = forceChosenAudioCodec(desc.sdp);
+      pc2.setRemoteDescription(desc).then(
+        function() {
+          pc2.createAnswer().then(
+            gotDescription2,
+            onCreateSessionDescriptionError
+          );
+        },
+        onSetSessionDescriptionError
+      );
     },
     onSetSessionDescriptionError
   );
 }
 
-function gotRemoteDescription(desc) {
-  console.log('Answer from pc \n' + desc.sdp);
-  desc.sdp.sdp = forceChosenAudioCodec(desc.sdp.sdp);
-  pc.setRemoteDescription(desc.sdp).then(
+function gotDescription2(desc) {
+  trace('Answer from pc2 \n' + desc.sdp);
+  pc2.setLocalDescription(desc).then(
     function() {
-      // desc.sdp = forceChosenAudioCodec(desc.sdp);
-      // pc1.setRemoteDescription(desc).then(
-      //   function() {
-      //   },
-      //   onSetSessionDescriptionError
-      // );
+      desc.sdp = forceChosenAudioCodec(desc.sdp);
+      pc1.setRemoteDescription(desc).then(
+        function() {
+        },
+        onSetSessionDescriptionError
+      );
     },
     onSetSessionDescriptionError
   );
 }
 
 function hangup() {
-  console.log('Ending call');
+  trace('Ending call');
   localStream.getTracks().forEach(function(track) {
     track.stop();
   });
-  pc.close();
-  pc = null;
+  pc1.close();
+  pc2.close();
+  pc1 = null;
+  pc2 = null;
   hangupButton.disabled = true;
   callButton.disabled = false;
   codecSelector.disabled = false;
@@ -208,11 +186,19 @@ function hangup() {
 
 function gotRemoteStream(e) {
   audio2.srcObject = e.stream;
-  console.log('Received remote stream');
+  trace('Received remote stream');
+}
+
+function getOtherPc(pc) {
+  return (pc === pc1) ? pc2 : pc1;
+}
+
+function getName(pc) {
+  return (pc === pc1) ? 'pc1' : 'pc2';
 }
 
 function onIceCandidate(pc, event) {
-  pc.addIceCandidate(event.candidate)
+  getOtherPc(pc).addIceCandidate(event.candidate)
   .then(
     function() {
       onAddIceCandidateSuccess(pc);
@@ -221,20 +207,20 @@ function onIceCandidate(pc, event) {
       onAddIceCandidateError(pc, err);
     }
   );
-  console.log(' ICE candidate: \n' + (event.candidate ?
+  trace(getName(pc) + ' ICE candidate: \n' + (event.candidate ?
       event.candidate.candidate : '(null)'));
 }
 
 function onAddIceCandidateSuccess() {
-  console.log('AddIceCandidate success.');
+  trace('AddIceCandidate success.');
 }
 
 function onAddIceCandidateError(error) {
-  console.log('Failed to add ICE Candidate: ' + error.toString());
+  trace('Failed to add ICE Candidate: ' + error.toString());
 }
 
 function onSetSessionDescriptionError(error) {
-  console.log('Failed to set session description: ' + error.toString());
+  trace('Failed to set session description: ' + error.toString());
 }
 
 function forceChosenAudioCodec(sdp) {
@@ -248,11 +234,11 @@ function forceChosenAudioCodec(sdp) {
 function maybePreferCodec(sdp, type, dir, codec) {
   var str = type + ' ' + dir + ' codec';
   if (codec === '') {
-    console.log('No preference on ' + str + '.');
+    trace('No preference on ' + str + '.');
     return sdp;
   }
 
-  console.log('Prefer ' + str + ': ' + codec);
+  trace('Prefer ' + str + ': ' + codec);
 
   var sdpLines = sdp.split('\r\n');
 
@@ -323,10 +309,10 @@ function setDefaultCodec(mLine, payload) {
 
 // query getStats every second
 window.setInterval(function() {
-  if (!window.pc) {
+  if (!window.pc1) {
     return;
   }
-  window.pc.getStats(null).then(function(res) {
+  window.pc1.getStats(null).then(function(res) {
     res.forEach(function(report) {
       var bytes;
       var packets;
