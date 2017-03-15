@@ -81,11 +81,11 @@ function call(desc) {
   console.log('Starting call');
   var servers = {
       'iceServers': [
-        {url:'stun:stun01.sipphone.com'},
+        /*{url:'stun:stun01.sipphone.com'},/*error*/
         {url:'stun:stun.ekiga.net'},
-        {url:'stun:stun.fwdnet.net'},
+        /*{url:'stun:stun.fwdnet.net'},/*error*/
         {url:'stun:stun.ideasip.com'},
-        {url:'stun:stun.iptel.org'},
+        /*{url:'stun:stun.iptel.org'},/*error*/
         {url:'stun:stun.rixtelecom.se'},
         {url:'stun:stun.schlund.de'},
         {url:'stun:stun.l.google.com:19302'},
