@@ -32,7 +32,7 @@ var lastResult;
 
 var offerOptions = {
   offerToReceiveAudio: 1,
-  offerToReceiveVideo: 0,
+  offerToReceiveVideo: 1,
   voiceActivityDetection: false
 };
 
