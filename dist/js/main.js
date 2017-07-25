@@ -127,7 +127,7 @@ function call(desc) {
   pc.onaddstream = gotRemoteStream;
 
   if (isAnswer) {
-    desc.sdp.sdp = forceChosenAudioCodec(desc.sdp.sdp);
+    //desc.sdp.sdp = forceChosenAudioCodec(desc.sdp.sdp);
     pc.setRemoteDescription(desc.sdp).then(
       function() {
       },
