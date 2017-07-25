@@ -205,7 +205,7 @@ function hangup() {
 }
 
 function gotRemoteStream(e) {
-  remoteVideo.srcObject = e.stream;
+  remoteVideo.srcObject = e.streams[0];
   console.log('Received remote stream');
 }
 
