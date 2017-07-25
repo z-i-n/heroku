@@ -179,7 +179,6 @@ function gotLocalDescription(desc) {
 function gotRemoteDescription(desc) {
   console.log('Answer from pc \n' + desc.sdp);
   //desc.sdp.sdp = forceChosenAudioCodec(desc.sdp.sdp);
-  desc.sdp.type = 'offer';
   pc.setRemoteDescription(desc.sdp).then(
     function() {
       // desc.sdp = forceChosenAudioCodec(desc.sdp);
