@@ -8,7 +8,6 @@
 -->
 <html>
 <head>
-
   <meta charset="utf-8">
   <meta name="description" content="WebRTC code samples">
   <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1">
@@ -20,46 +19,45 @@
 
   <base target="_blank">
 
-  <title>Peer connection: audio only</title>
+  <title>Peer connection</title>
 
   <link rel="icon" sizes="192x192" href="../../../images/webrtc-icon-192x192.png">
   <link href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet" type="text/css">
   <link href="//fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="../../../css/main.css" />
   <link rel="stylesheet" href="css/main.css" />
-
 </head>
 
 <body>
 
   <div id="container">
-
-    <h1><a href="//webrtc.github.io/samples/" title="WebRTC samples homepage">WebRTC samples</a></h1>
-    <h4><span>Peer connection: audio only</span></h4>
-
-    <div id="create_room">
-      Room name : <input type="text" id="room_name" value=""/>
+    <div id="create_room" style="display:block">
+      <input type="text" id="room_name" value="" placeholder="Room name"/>
       <button id="btn_room_create">join</button>
     </div>
+
     <div id="standby" style="display:none">
-
     </div>
-    <div id="voice_talk" style="display:none">
-      <div id="audio">
-        <div>
-          <div class="label">Local :</div><video id="audio1" autoplay controls muted></video>
-        </div>
-        <div>
-          <div class="label">Remote :</div><video id="audio2" autoplay controls></video>
-        </div>
-      </div>
 
-      <div id="buttons">
-        <select id="codec">
+    <div id="talk" style="display:none">
+      <video id="remoteVideo" autoplay></video>
+      <video id="localVideo" autoplay></video>
+      <button id="hangupButton">Hang Up</button>
+      <!-- <div id="audio">
+        <div>
+          <div class="label">Local :</div>
+        </div>
+        <div>
+          <div class="label">Remote :</div><video id="remoteVideo" autoplay controls></video>
+        </div>
+      </div> -->
+
+      <!-- <div id="buttons">
+        <select id="codec"> -->
           <!-- Codec values are matched with how they appear in the SDP.
           For instance, opus matches opus/48000/2 in Chrome, and ISAC/16000
           matches 16K iSAC (but not 32K iSAC). -->
-          <option value="ISAC">iSAC 16K</option>
+          <!-- <option value="ISAC">iSAC 16K</option>
           <option value="opus">Opus</option>
           <option value="G722">G722</option>
           <option value="PCMU">PCMU</option>
@@ -75,8 +73,7 @@
         <div>Packets sent per second</div>
         <canvas id="packetCanvas"></canvas>
       </div>
-    </div>
-<br/><br/>
+    </div> -->
     <!--a href="https://github.com/webrtc/samples/tree/gh-pages/src/content/peerconnection/audio" title="View source for this page on GitHub" id="viewSource">View source on GitHub</a-->
     <p id='server-time'></p>
   </div>
@@ -123,7 +120,7 @@
       });
       var area_create = document.getElementById('create_room');
       var area_standby = document.getElementById('standby');
-      var area_talk = document.getElementById('voice_talk');
+      var area_talk = document.getElementById('talk');
       var btn = document.getElementById('btn_room_create');
       var room_name = document.getElementById('room_name');
 

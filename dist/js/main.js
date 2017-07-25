@@ -9,13 +9,13 @@
 
 'use strict';
 var isAnswer = false;
-var audio1 = document.querySelector('audio#audio1');
-var audio2 = document.querySelector('audio#audio2');
-var callButton = document.querySelector('button#callButton');
+var remoteVideo = document.querySelector('#remoteVideo');
+var localVideo = document.querySelector('#localVideo');
+//var callButton = document.querySelector('button#callButton');
 var hangupButton = document.querySelector('button#hangupButton');
-var codecSelector = document.querySelector('select#codec');
+//var codecSelector = document.querySelector('select#codec');
 hangupButton.disabled = true;
-callButton.onclick = call;
+// callButton.onclick = call;
 hangupButton.onclick = hangup;
 
 var pc;
@@ -37,7 +37,7 @@ var offerOptions = {
 
 function gotStream(stream) {
   hangupButton.disabled = false;
-  audio1.srcObject = stream;
+  //localVideo.srcObject = stream;
   console.log('Received local stream');
   localStream = stream;
   var audioTracks = localStream.getAudioTracks();
@@ -60,14 +60,14 @@ function gotStream(stream) {
       onCreateSessionDescriptionError
     );
   }
-
+/*
   bitrateSeries = new TimelineDataSeries();
   bitrateGraph = new TimelineGraphView('bitrateGraph', 'bitrateCanvas');
   bitrateGraph.updateEndDate();
 
   packetSeries = new TimelineDataSeries();
   packetGraph = new TimelineGraphView('packetGraph', 'packetCanvas');
-  packetGraph.updateEndDate();
+  packetGraph.updateEndDate();*/
 }
 
 function onCreateSessionDescriptionError(error) {
@@ -76,8 +76,8 @@ function onCreateSessionDescriptionError(error) {
 
 function call(desc) {
   isAnswer = !!desc;
-  callButton.disabled = true;
-  codecSelector.disabled = true;
+  //callButton.disabled = true;
+  //codecSelector.disabled = true;
   console.log('Starting call');
   var servers = {
       'iceServers': [
@@ -147,7 +147,7 @@ function call(desc) {
 
   navigator.mediaDevices.getUserMedia({
     audio: true,
-    video: false
+    video: true
   })
   .then(gotStream)
   .catch(function(e) {
@@ -200,12 +200,12 @@ function hangup() {
   pc.close();
   pc = null;
   hangupButton.disabled = true;
-  callButton.disabled = false;
-  codecSelector.disabled = false;
+  //callButton.disabled = false;
+  //codecSelector.disabled = false;
 }
 
 function gotRemoteStream(e) {
-  audio2.srcObject = e.stream;
+  remoteVideo.srcObject = e.stream;
   console.log('Received remote stream');
 }
 
@@ -241,7 +241,8 @@ function onSetSessionDescriptionError(error) {
 }
 
 function forceChosenAudioCodec(sdp) {
-  return maybePreferCodec(sdp, 'audio', 'send', codecSelector.value);
+  //(codecSelector && codecSelector.value ? codecSelector.value :
+  return maybePreferCodec(sdp, 'audio', 'send', 'opus');
 }
 
 // Copied from AppRTC's sdputils.js:
@@ -325,38 +326,38 @@ function setDefaultCodec(mLine, payload) {
 }
 
 // query getStats every second
-window.setInterval(function() {
-  if (!window.pc) {
-    return;
-  }
-  window.pc.getStats(null).then(function(res) {
-    res.forEach(function(report) {
-      var bytes;
-      var packets;
-      var now = report.timestamp;
-      if ((report.type === 'outboundrtp') ||
-          (report.type === 'outbound-rtp') ||
-          (report.type === 'ssrc' && report.bytesSent)) {
-        bytes = report.bytesSent;
-        packets = report.packetsSent;
-        if (lastResult && lastResult.get(report.id)) {
-          // calculate bitrate
-          var bitrate = 8 * (bytes - lastResult.get(report.id).bytesSent) /
-              (now - lastResult.get(report.id).timestamp);
+// window.setInterval(function() {
+//   if (!window.pc) {
+//     return;
+//   }
+//   window.pc.getStats(null).then(function(res) {
+//     res.forEach(function(report) {
+//       var bytes;
+//       var packets;
+//       var now = report.timestamp;
+//       if ((report.type === 'outboundrtp') ||
+//           (report.type === 'outbound-rtp') ||
+//           (report.type === 'ssrc' && report.bytesSent)) {
+//         bytes = report.bytesSent;
+//         packets = report.packetsSent;
+//         if (lastResult && lastResult.get(report.id)) {
+//           // calculate bitrate
+//           var bitrate = 8 * (bytes - lastResult.get(report.id).bytesSent) /
+//               (now - lastResult.get(report.id).timestamp);
 
-          // append to chart
-          bitrateSeries.addPoint(now, bitrate);
-          bitrateGraph.setDataSeries([bitrateSeries]);
-          bitrateGraph.updateEndDate();
+//           // append to chart
+//           bitrateSeries.addPoint(now, bitrate);
+//           bitrateGraph.setDataSeries([bitrateSeries]);
+//           bitrateGraph.updateEndDate();
 
-          // calculate number of packets and append to chart
-          packetSeries.addPoint(now, packets -
-              lastResult.get(report.id).packetsSent);
-          packetGraph.setDataSeries([packetSeries]);
-          packetGraph.updateEndDate();
-        }
-      }
-    });
-    lastResult = res;
-  });
-}, 1000);
+//           // calculate number of packets and append to chart
+//           packetSeries.addPoint(now, packets -
+//               lastResult.get(report.id).packetsSent);
+//           packetGraph.setDataSeries([packetSeries]);
+//           packetGraph.updateEndDate();
+//         }
+//       }
+//     });
+//     lastResult = res;
+//   });
+// }, 1000);

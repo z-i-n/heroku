@@ -5,6 +5,71 @@
  *  that can be found in the LICENSE file in the root of the source
  *  tree.
  */
+ html, body, h1, h2, h3, h4 {
+    padding: 0;
+    margin: 0;
+}
+
+#container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  left: 0px;
+}
+
+#create_room {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 320px;
+  margin-left: -160px;
+  margin-top: -40px;
+}
+
+#standby {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 320px;
+  margin-left: -160px;
+  margin-top: -60px;
+}
+#talk {
+  width: 100%;
+  height: 100%;
+}
+video {
+  width: 100%;
+  height: 100%;
+}
+input {
+  width: 210px;
+  height: 40px;
+  border-color: rgb(222,60,80);
+  box-sizing: border-box;
+}
+
+button {
+  margin: 0 0 0 10px;
+  float: right;
+  width: 96px;
+  height: 40px;
+  border-radius: 3px;
+  font-weight: 600;
+  border-color: transparent;
+  font-size: 20px;
+  background-color: rgb(222,60,80);
+  color: #fff;
+  cursor: pointer;
+}
+
+button#hangupButton {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+/*
 audio {
   display: inline-block;
   position: relative;
@@ -12,10 +77,6 @@ audio {
   width: calc(100% - 120px);
 }
 
-button {
-  margin: 0 20px 0 0;
-  width: 96px;
-}
 
 div#audio {
   margin: 0 0 29px 0;
@@ -40,3 +101,4 @@ div.graph-container {
 a#viewSource {
   clear: both;
 }
+*/
