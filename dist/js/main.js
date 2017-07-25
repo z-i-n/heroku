@@ -37,7 +37,7 @@ var offerOptions = {
 
 function gotStream(stream) {
   hangupButton.disabled = false;
-  //localVideo.srcObject = stream;
+  localVideo.srcObject = stream;
   console.log('Received local stream');
   localStream = stream;
   var audioTracks = localStream.getAudioTracks();
