@@ -44,7 +44,6 @@ function gotStream(stream) {
   if (audioTracks.length > 0) {
     console.log('Using Audio device: ' + audioTracks[0].label);
   }
-  pc.addStream(localStream);
   console.log('Adding Local Stream to peer connection');
 
   if (!isAnswer) {
@@ -124,7 +123,17 @@ function call(desc) {
   pc = new RTCPeerConnection(servers, pcConstraints);
   console.log('Created local peer connection object pc');
   pc.onicecandidate = onIceCandidate;
-  pc.onaddstream = gotRemoteStream;
+  pc.ontrack = gotRemoteStream;
+
+  //pc.addStream(localStream);
+  localStream.getTracks().forEach(
+    function(track) {
+      pc.addTrack(
+        track,
+        localStream
+      );
+    }
+  );
 
   if (isAnswer) {
     //desc.sdp.sdp = forceChosenAudioCodec(desc.sdp.sdp);
