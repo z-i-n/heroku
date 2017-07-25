@@ -40,6 +40,17 @@ function gotStream(stream) {
   localVideo.srcObject = stream;
   console.log('Received local stream');
   localStream = stream;
+
+  //pc.addStream(localStream);
+  localStream.getTracks().forEach(
+    function(track) {
+      pc.addTrack(
+        track,
+        localStream
+      );
+    }
+  );
+
   var audioTracks = localStream.getAudioTracks();
   if (audioTracks.length > 0) {
     console.log('Using Audio device: ' + audioTracks[0].label);
@@ -125,15 +136,6 @@ function call(desc) {
   pc.onicecandidate = onIceCandidate;
   pc.ontrack = gotRemoteStream;
 
-  //pc.addStream(localStream);
-  localStream.getTracks().forEach(
-    function(track) {
-      pc.addTrack(
-        track,
-        localStream
-      );
-    }
-  );
 
   if (isAnswer) {
     //desc.sdp.sdp = forceChosenAudioCodec(desc.sdp.sdp);
