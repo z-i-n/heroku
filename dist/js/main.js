@@ -31,7 +31,7 @@ var lastResult;
 
 var offerOptions = {
   offerToReceiveAudio: 1,
-  offerToReceiveVideo: 0,
+  offerToReceiveVideo: 1,
   voiceActivityDetection: false
 };
 
@@ -139,7 +139,9 @@ function call(desc) {
 
   if (isAnswer) {
     //desc.sdp.sdp = forceChosenAudioCodec(desc.sdp.sdp);
-    pc.setRemoteDescription(desc.sdp).then(
+
+    var sdp = new RTCSessionDescription(desc.sdp);
+    pc.setRemoteDescription(sdp).then(
       function() {
       },
       onSetSessionDescriptionError
@@ -190,7 +192,8 @@ function gotLocalDescription(desc) {
 function gotRemoteDescription(desc) {
   console.log('Answer from pc \n' + desc.sdp);
   //desc.sdp.sdp = forceChosenAudioCodec(desc.sdp.sdp);
-  pc.setRemoteDescription(desc.sdp).then(
+  var sdp = new RTCSessionDescription(desc.sdp);
+  pc.setRemoteDescription(sdp).then(
     function() {
       // desc.sdp = forceChosenAudioCodec(desc.sdp);
       // pc1.setRemoteDescription(desc).then(
@@ -228,7 +231,8 @@ function onIceCandidate(event) {
 }
 
 function addIcecandidate(iceCandidate) {
-  pc.addIceCandidate(iceCandidate)
+  var candidate = new RTCIceCandidate(iceCandidate);
+  pc.addIceCandidate(candidate)
   .then(
     function() {
       onAddIceCandidateSuccess(pc);
@@ -372,3 +376,59 @@ function setDefaultCodec(mLine, payload) {
 //     lastResult = res;
 //   });
 // }, 1000);
+
+
+
+var socket = io.connect();
+/*var el = document.getElementById('server-time');
+socket.on('create_room', function(timeString) {
+  el.innerHTML = 'Server time: ' + timeString;
+});*/
+socket.on('request.offer', function() {
+  //offer create
+  call();
+});
+socket.on('offer', function(data) {
+  //receive offer
+    var signal = JSON.parse(data);
+    if (signal.sdp) {
+      call(signal);
+    }
+    area_standby.style.display = 'none';
+    area_talk.style.display = '';
+});
+socket.on('answer', function(data) {
+  //receive offer
+    var signal = JSON.parse(data);
+    if (signal.sdp) {
+      gotRemoteDescription(signal);
+    }
+  area_standby.style.display = 'none';
+  area_talk.style.display = '';
+});
+socket.on('candidate', function(data) {
+  //receive offer
+    if (data) {
+      addIcecandidate(data);
+    }
+});
+var area_create = document.getElementById('create_room');
+var area_standby = document.getElementById('standby');
+var area_talk = document.getElementById('talk');
+var btn = document.getElementById('btn_room_create');
+var room_name = document.getElementById('room_name');
+
+btn.addEventListener('click', function(e) {
+  socket.emit('joinRoom', room_name.value, function (data) {
+    area_standby.innerHTML = '<p> join room : ' + room_name.value + '</p>'
+                            + (data == 'waiting' ? '<p>Waiting for other users</p>' : 'Waiting for offer');
+    area_create.style.display = 'none';
+    area_standby.style.display = '';
+  });
+}, false);
+
+remoteVideo.addEventListener('play', function(e){
+  console.log('----------------------');
+  console.log(e);
+  e.target.style.left = -((e.target.clientWidth - document.body.clientWidth)/2) + 'px';
+}, false);

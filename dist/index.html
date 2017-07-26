@@ -78,60 +78,10 @@
     <p id='server-time'></p>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
   <script src="js/common.js"></script>
   <script src="js/main.js"></script>
   <script src="js/third_party/graph.js"></script>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
-  <script>
-      var socket = io.connect();
-      /*var el = document.getElementById('server-time');
-      socket.on('create_room', function(timeString) {
-        el.innerHTML = 'Server time: ' + timeString;
-      });*/
-      socket.on('request.offer', function() {
-        //offer create
-        area_standby.style.display = '';
-        area_talk.style.display = '';
-        call();
-      });
-      socket.on('offer', function(data) {
-        //receive offer
-          var signal = JSON.parse(data);
-          if (signal.sdp) {
-            call(signal);
-          }
-          area_standby.style.display = '';
-          area_talk.style.display = '';
-      });
-      socket.on('answer', function(data) {
-        //receive offer
-          var signal = JSON.parse(data);
-          if (signal.sdp) {
-            gotRemoteDescription(signal);
-          }
-      });
-      socket.on('candidate', function(data) {
-        //receive offer
-          if (data) {
-            addIcecandidate(data);
-          }
-      });
-      var area_create = document.getElementById('create_room');
-      var area_standby = document.getElementById('standby');
-      var area_talk = document.getElementById('talk');
-      var btn = document.getElementById('btn_room_create');
-      var room_name = document.getElementById('room_name');
-
-      btn.addEventListener('click', function(e) {
-        socket.emit('joinRoom', room_name.value, function (data) {
-          area_standby.innerHTML = '<p> join room : ' + room_name.value + '</p>'
-                                  + (data == 'waiting' ? '<p>Waiting for other users</p>' : 'Waiting for offer');
-          area_create.style.display = 'none';
-          area_standby.style.display = '';
-        });
-      }, false);
-    </script>
 </body>
 </html>
