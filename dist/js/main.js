@@ -432,3 +432,10 @@ remoteVideo.addEventListener('play', function(e){
   console.log(e);
   e.target.style.left = -((e.target.clientWidth - document.body.clientWidth)/2) + 'px';
 }, false);
+
+
+localVideo.addEventListener('play', function(e){
+  if (e.target.clientWidth > 320) {
+    e.target.style.width = '320px';
+  }
+}, false);
