@@ -9,13 +9,13 @@
 
 'use strict';
 var isAnswer = false;
-var audio1 = document.querySelector('audio#audio1');
-var audio2 = document.querySelector('audio#audio2');
-var callButton = document.querySelector('button#callButton');
+var remoteVideo = document.querySelector('#remoteVideo');
+var localVideo = document.querySelector('#localVideo');
+//var callButton = document.querySelector('button#callButton');
 var hangupButton = document.querySelector('button#hangupButton');
-var codecSelector = document.querySelector('select#codec');
+//var codecSelector = document.querySelector('select#codec');
 hangupButton.disabled = true;
-callButton.onclick = call;
+// callButton.onclick = call;
 hangupButton.onclick = hangup;
 
 var pc;
@@ -31,20 +31,30 @@ var lastResult;
 
 var offerOptions = {
   offerToReceiveAudio: 1,
-  offerToReceiveVideo: 0,
+  offerToReceiveVideo: 1,
   voiceActivityDetection: false
 };
 
 function gotStream(stream) {
   hangupButton.disabled = false;
-  audio1.srcObject = stream;
+  localVideo.srcObject = stream;
   console.log('Received local stream');
   localStream = stream;
+
+  //pc.addStream(localStream);
+  localStream.getTracks().forEach(
+    function(track) {
+      pc.addTrack(
+        track,
+        localStream
+      );
+    }
+  );
+
   var audioTracks = localStream.getAudioTracks();
   if (audioTracks.length > 0) {
     console.log('Using Audio device: ' + audioTracks[0].label);
   }
-  pc.addStream(localStream);
   console.log('Adding Local Stream to peer connection');
 
   if (!isAnswer) {
@@ -60,14 +70,14 @@ function gotStream(stream) {
       onCreateSessionDescriptionError
     );
   }
-
+/*
   bitrateSeries = new TimelineDataSeries();
   bitrateGraph = new TimelineGraphView('bitrateGraph', 'bitrateCanvas');
   bitrateGraph.updateEndDate();
 
   packetSeries = new TimelineDataSeries();
   packetGraph = new TimelineGraphView('packetGraph', 'packetCanvas');
-  packetGraph.updateEndDate();
+  packetGraph.updateEndDate();*/
 }
 
 function onCreateSessionDescriptionError(error) {
@@ -76,8 +86,8 @@ function onCreateSessionDescriptionError(error) {
 
 function call(desc) {
   isAnswer = !!desc;
-  callButton.disabled = true;
-  codecSelector.disabled = true;
+  //callButton.disabled = true;
+  //codecSelector.disabled = true;
   console.log('Starting call');
   var servers = {
       'iceServers': [
@@ -124,11 +134,14 @@ function call(desc) {
   pc = new RTCPeerConnection(servers, pcConstraints);
   console.log('Created local peer connection object pc');
   pc.onicecandidate = onIceCandidate;
-  pc.onaddstream = gotRemoteStream;
+  pc.ontrack = gotRemoteStream;
+
 
   if (isAnswer) {
-    desc.sdp.sdp = forceChosenAudioCodec(desc.sdp.sdp);
-    pc.setRemoteDescription(desc.sdp).then(
+    //desc.sdp.sdp = forceChosenAudioCodec(desc.sdp.sdp);
+
+    var sdp = new RTCSessionDescription(desc.sdp);
+    pc.setRemoteDescription(sdp).then(
       function() {
       },
       onSetSessionDescriptionError
@@ -147,7 +160,7 @@ function call(desc) {
 
   navigator.mediaDevices.getUserMedia({
     audio: true,
-    video: false
+    video: true
   })
   .then(gotStream)
   .catch(function(e) {
@@ -178,8 +191,9 @@ function gotLocalDescription(desc) {
 
 function gotRemoteDescription(desc) {
   console.log('Answer from pc \n' + desc.sdp);
-  desc.sdp.sdp = forceChosenAudioCodec(desc.sdp.sdp);
-  pc.setRemoteDescription(desc.sdp).then(
+  //desc.sdp.sdp = forceChosenAudioCodec(desc.sdp.sdp);
+  var sdp = new RTCSessionDescription(desc.sdp);
+  pc.setRemoteDescription(sdp).then(
     function() {
       // desc.sdp = forceChosenAudioCodec(desc.sdp);
       // pc1.setRemoteDescription(desc).then(
@@ -200,12 +214,12 @@ function hangup() {
   pc.close();
   pc = null;
   hangupButton.disabled = true;
-  callButton.disabled = false;
-  codecSelector.disabled = false;
+  //callButton.disabled = false;
+  //codecSelector.disabled = false;
 }
 
 function gotRemoteStream(e) {
-  audio2.srcObject = e.stream;
+  remoteVideo.srcObject = e.streams[0];
   console.log('Received remote stream');
 }
 
@@ -217,7 +231,8 @@ function onIceCandidate(event) {
 }
 
 function addIcecandidate(iceCandidate) {
-  pc.addIceCandidate(iceCandidate)
+  var candidate = new RTCIceCandidate(iceCandidate);
+  pc.addIceCandidate(candidate)
   .then(
     function() {
       onAddIceCandidateSuccess(pc);
@@ -241,7 +256,8 @@ function onSetSessionDescriptionError(error) {
 }
 
 function forceChosenAudioCodec(sdp) {
-  return maybePreferCodec(sdp, 'audio', 'send', codecSelector.value);
+  //(codecSelector && codecSelector.value ? codecSelector.value :
+  return maybePreferCodec(sdp, 'audio', 'send', 'opus');
 }
 
 // Copied from AppRTC's sdputils.js:
@@ -325,38 +341,101 @@ function setDefaultCodec(mLine, payload) {
 }
 
 // query getStats every second
-window.setInterval(function() {
-  if (!window.pc) {
-    return;
-  }
-  window.pc.getStats(null).then(function(res) {
-    res.forEach(function(report) {
-      var bytes;
-      var packets;
-      var now = report.timestamp;
-      if ((report.type === 'outboundrtp') ||
-          (report.type === 'outbound-rtp') ||
-          (report.type === 'ssrc' && report.bytesSent)) {
-        bytes = report.bytesSent;
-        packets = report.packetsSent;
-        if (lastResult && lastResult.get(report.id)) {
-          // calculate bitrate
-          var bitrate = 8 * (bytes - lastResult.get(report.id).bytesSent) /
-              (now - lastResult.get(report.id).timestamp);
+// window.setInterval(function() {
+//   if (!window.pc) {
+//     return;
+//   }
+//   window.pc.getStats(null).then(function(res) {
+//     res.forEach(function(report) {
+//       var bytes;
+//       var packets;
+//       var now = report.timestamp;
+//       if ((report.type === 'outboundrtp') ||
+//           (report.type === 'outbound-rtp') ||
+//           (report.type === 'ssrc' && report.bytesSent)) {
+//         bytes = report.bytesSent;
+//         packets = report.packetsSent;
+//         if (lastResult && lastResult.get(report.id)) {
+//           // calculate bitrate
+//           var bitrate = 8 * (bytes - lastResult.get(report.id).bytesSent) /
+//               (now - lastResult.get(report.id).timestamp);
 
-          // append to chart
-          bitrateSeries.addPoint(now, bitrate);
-          bitrateGraph.setDataSeries([bitrateSeries]);
-          bitrateGraph.updateEndDate();
+//           // append to chart
+//           bitrateSeries.addPoint(now, bitrate);
+//           bitrateGraph.setDataSeries([bitrateSeries]);
+//           bitrateGraph.updateEndDate();
 
-          // calculate number of packets and append to chart
-          packetSeries.addPoint(now, packets -
-              lastResult.get(report.id).packetsSent);
-          packetGraph.setDataSeries([packetSeries]);
-          packetGraph.updateEndDate();
-        }
-      }
-    });
-    lastResult = res;
+//           // calculate number of packets and append to chart
+//           packetSeries.addPoint(now, packets -
+//               lastResult.get(report.id).packetsSent);
+//           packetGraph.setDataSeries([packetSeries]);
+//           packetGraph.updateEndDate();
+//         }
+//       }
+//     });
+//     lastResult = res;
+//   });
+// }, 1000);
+
+
+
+var socket = io.connect();
+/*var el = document.getElementById('server-time');
+socket.on('create_room', function(timeString) {
+  el.innerHTML = 'Server time: ' + timeString;
+});*/
+socket.on('request.offer', function() {
+  //offer create
+  call();
+});
+socket.on('offer', function(data) {
+  //receive offer
+    var signal = JSON.parse(data);
+    if (signal.sdp) {
+      call(signal);
+    }
+    area_standby.style.display = 'none';
+    area_talk.style.display = '';
+});
+socket.on('answer', function(data) {
+  //receive offer
+    var signal = JSON.parse(data);
+    if (signal.sdp) {
+      gotRemoteDescription(signal);
+    }
+  area_standby.style.display = 'none';
+  area_talk.style.display = '';
+});
+socket.on('candidate', function(data) {
+  //receive offer
+    if (data) {
+      addIcecandidate(data);
+    }
+});
+var area_create = document.getElementById('create_room');
+var area_standby = document.getElementById('standby');
+var area_talk = document.getElementById('talk');
+var btn = document.getElementById('btn_room_create');
+var room_name = document.getElementById('room_name');
+
+btn.addEventListener('click', function(e) {
+  socket.emit('joinRoom', room_name.value, function (data) {
+    area_standby.innerHTML = '<p> join room : ' + room_name.value + '</p>'
+                            + (data == 'waiting' ? '<p>Waiting for other users</p>' : 'Waiting for offer');
+    area_create.style.display = 'none';
+    area_standby.style.display = '';
   });
-}, 1000);
+}, false);
+
+remoteVideo.addEventListener('play', function(e){
+  console.log('----------------------');
+  console.log(e);
+  e.target.style.left = -((e.target.clientWidth - document.body.clientWidth)/2) + 'px';
+}, false);
+
+
+localVideo.addEventListener('play', function(e){
+  if (e.target.clientWidth > 320) {
+    e.target.style.width = '320px';
+  }
+}, false);

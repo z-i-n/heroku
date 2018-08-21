@@ -6,6 +6,9 @@
   "scripts": {
     "start": "node index.js"
   },
+  "engines": {
+    "node": "8.0.0"
+  },
   "dependencies": {
     "express": "^4.13.4",
     "getconfig": "2.1.0",
