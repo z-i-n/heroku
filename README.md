@@ -1,4 +1,4 @@
-# node-js-getting-started
+# WebRTC
 
 A barebones Node.js app using [Express 4](http://expressjs.com/).
 
@@ -9,10 +9,10 @@ This application support the [Getting Started with Node on Heroku](https://devce
 Make sure you have [Node.js](http://nodejs.org/) and the [Heroku Toolbelt](https://toolbelt.heroku.com/) installed.
 
 ```sh
-$ git clone git@github.com:heroku/node-js-getting-started.git # or clone your own fork
-$ cd node-js-getting-started
+$ git clone git@github.com:z-i-n/heroku-ray-choi.git # or clone your own fork
+$ cd heroku-ray-choi
 $ npm install
-$ npm start
+$ gulp
 ```
 
 Your app should now be running on [localhost:5000](http://localhost:5000/).
