@@ -428,14 +428,29 @@ btn.addEventListener('click', function(e) {
 }, false);
 
 remoteVideo.addEventListener('play', function(e){
-  console.log('----------------------');
-  console.log(e);
-  e.target.style.left = -((e.target.clientWidth - document.body.clientWidth)/2) + 'px';
+  resizeRemoteVideo();
 }, false);
 
 
 localVideo.addEventListener('play', function(e){
-  if (e.target.clientWidth > 320) {
-    e.target.style.width = '320px';
+  resizeLocalVideo();
+}, false);
+
+function resizeLocalVideo() {
+  localVideo.style.width = parseInt(window.innerWidth / 3, 10) + 'px';
+}
+
+function resizeRemoteVideo() {
+  if (remoteVideo.clientWidth > remoteVideo.clientHeight) {
+    remoteVideo.style.height = remoteVideo.clientWidth > window.innerWidth ? '100%' : window.innerWidth + 'px';
+    remoteVideo.style.left = (-1 * parseInt((remoteVideo.clientWidth - window.innerWidth)/2, 10)) + 'px';
+  } else {
+    remoteVideo.style.width = remoteVideo.clientHeight > window.innerWidth ? '100%' : window.innerHeight + 'px';
+    remoteVideo.style.top = (-1 * parseInt((remoteVideo.clientHeight - window.innerHeight)/2, 10)) + 'px';
   }
+}
+
+window.addEventListener('resize', function(){
+  resizeLocalVideo();
+  resizeRemoteVideo();
 }, false);
