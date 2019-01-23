@@ -442,10 +442,10 @@ function resizeLocalVideo() {
 
 function resizeRemoteVideo() {
   if (remoteVideo.clientWidth > remoteVideo.clientHeight) {
-    remoteVideo.style.height = remoteVideo.clientWidth > window.innerWidth ? '100%' : window.innerWidth + 'px';
+    remoteVideo.style.height = window.innerHeight + 'px';
     remoteVideo.style.left = (-1 * parseInt((remoteVideo.clientWidth - window.innerWidth)/2, 10)) + 'px';
   } else {
-    remoteVideo.style.width = remoteVideo.clientHeight > window.innerHeight ? '100%' : window.innerHeight + 'px';
+    remoteVideo.style.width = window.innerWidth + 'px';
     remoteVideo.style.top = (-1 * parseInt((remoteVideo.clientHeight - window.innerHeight)/2, 10)) + 'px';
   }
 }
