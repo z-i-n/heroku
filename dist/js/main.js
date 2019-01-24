@@ -442,14 +442,14 @@ function resizeLocalVideo() {
 
 function resizeRemoteVideo() {
   if (remoteVideo.clientWidth > remoteVideo.clientHeight) {
-    remoteVideo.style.height = window.innerHeight + 'px';
-    remoteVideo.style.left = (-1 * parseInt((remoteVideo.clientWidth - window.innerWidth)/2, 10)) + 'px';
+    remoteVideo.style.height = window.outerHeight + 'px';
+    remoteVideo.style.left = (-1 * parseInt((remoteVideo.clientWidth - window.outerWidth)/2, 10)) + 'px';
     remoteVideo.style.top = 'unset';
   }
-  if (remoteVideo.clientWidth < window.innerWidth) {
+  if (remoteVideo.clientWidth < window.outerWidth) {
     remoteVideo.style.height = 'unset';
-    remoteVideo.style.width = window.innerWidth + 'px';
-    remoteVideo.style.top = (-1 * parseInt((remoteVideo.clientHeight - window.innerHeight)/2, 10)) + 'px';
+    remoteVideo.style.width = window.outerWidth + 'px';
+    remoteVideo.style.top = (-1 * parseInt((remoteVideo.clientHeight - window.outerHeight)/2, 10)) + 'px';
     remoteVideo.style.left = 'unset';
   }
 }
