@@ -443,9 +443,19 @@ function resizeLocalVideo() {
 function resizeRemoteVideo() {
   if (remoteVideo.clientWidth > remoteVideo.clientHeight) {
     remoteVideo.style.height = window.outerHeight + 'px';
-    remoteVideo.style.left = (-1 * parseInt((remoteVideo.clientWidth - window.outerWidth)/2, 10)) + 'px';
+    if (remoteVideo.clientWidth < window.outerWidth) {
+      remoteVideo.style.width = window.outerWidth + 'px';
+    }
   } else {
     remoteVideo.style.width = window.outerWidth + 'px';
+    if (remoteVideo.clientHeight < window.outerHeight) {
+      remoteVideo.style.height = window.outerHeight + 'px';
+    }
+  }
+  if (remoteVideo.clientWidth > window.outerWidth) {
+    remoteVideo.style.left = (-1 * parseInt((remoteVideo.clientWidth - window.outerWidth)/2, 10)) + 'px';
+  }
+  if (remoteVideo.clientHeight > window.outerHeight) {
     remoteVideo.style.top = (-1 * parseInt((remoteVideo.clientHeight - window.outerHeight)/2, 10)) + 'px';
   }
 }
