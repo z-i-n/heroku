@@ -444,11 +444,13 @@ function resizeRemoteVideo() {
   if (remoteVideo.clientWidth > remoteVideo.clientHeight) {
     remoteVideo.style.height = window.outerHeight + 'px';
     if (remoteVideo.clientWidth < window.outerWidth) {
+      remoteVideo.style.height = 'unset';
       remoteVideo.style.width = window.outerWidth + 'px';
     }
   } else {
     remoteVideo.style.width = window.outerWidth + 'px';
     if (remoteVideo.clientHeight < window.outerHeight) {
+      remoteVideo.style.width = 'unset';
       remoteVideo.style.height = window.outerHeight + 'px';
     }
   }
