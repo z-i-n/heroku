@@ -59,6 +59,11 @@ module.exports = function (app) {
             socket.broadcast.to(room_id).emit('candidate', data);
         });
 
+        socket.on('hangup', function (data) {
+            console.log('relaying hangup', room_id);
+            socket.leave(room_id);
+            socket.broadcast.to(room_id).emit('hangup');
+        });
         //socket.broadcast.emit('new');
     });
 

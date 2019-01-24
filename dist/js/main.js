@@ -16,7 +16,9 @@ var hangupButton = document.querySelector('button#hangupButton');
 //var codecSelector = document.querySelector('select#codec');
 hangupButton.disabled = true;
 // callButton.onclick = call;
-hangupButton.onclick = hangup;
+hangupButton.addEventListener('click', function(){
+  hangup();
+}, false);
 
 var pc;
 var localStream;
@@ -206,14 +208,22 @@ function gotRemoteDescription(desc) {
   );
 }
 
-function hangup() {
+function hangup(is_receiver) {
   console.log('Ending call');
   localStream.getTracks().forEach(function(track) {
     track.stop();
   });
   pc.close();
   pc = null;
-  hangupButton.disabled = true;
+  room_name.value = '';
+  area_create.style.display = '';
+  area_standby.style.display = 'none';
+  area_talk.style.display = 'none';
+
+  if (!is_receiver) {
+    socket.emit("hangup");
+  }
+  //hangupButton.disabled = true;
   //callButton.disabled = false;
   //codecSelector.disabled = false;
 }
@@ -411,6 +421,10 @@ socket.on('candidate', function(data) {
     if (data) {
       addIcecandidate(data);
     }
+});
+socket.on('hangup', function(data) {
+  //receive offer
+  hangup('is_receiver');
 });
 var area_create = document.getElementById('create_room');
 var area_standby = document.getElementById('standby');

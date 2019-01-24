@@ -7,6 +7,7 @@
       nodemon({
         script: 'index.js',
         watch: ['index.js', './server/']
+      , exec: 'node --inspect'
       , ext: 'js html'
       , env: { 'NODE_ENV': 'development' }
       , done: done
